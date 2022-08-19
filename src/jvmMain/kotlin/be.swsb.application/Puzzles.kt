@@ -38,8 +38,8 @@ class Puzzle private constructor(val solution: Solution, private val sets: List<
 }
 
 class Puzzles(private val puzzleMap: Map<LocalDate, Puzzle>) {
-    fun find(year: Int, month: Int, day: Int) : Puzzle? =
-        puzzleMap.get(LocalDate.of(year,month,day))
+    fun find(year: Year, month: Month, day: Day) : Puzzle? =
+        puzzleMap.get(LocalDate.of(year.value,month.value,day.value))
 }
 
 fun assemble(scaffold: PuzzlesBuilder.() -> Unit): Puzzles {
@@ -67,14 +67,23 @@ class PuzzlesBuilder {
     init {
         require(value >= 0) { "No negative years supported." }
     }
+    companion object {
+        operator fun invoke(value: String?) = value?.let { Year(it.toInt()) }
+    }
 }
 @JvmInline value class Month(val value: Int) {
     init {
         require(value in 1..12) { "A Month should be between 1 and 12." }
     }
+    companion object {
+        operator fun invoke(value: String?) = value?.let { Month(it.toInt()) }
+    }
 }
 @JvmInline value class Day(val value: Int) {
     init {
         require(value in 1..31) { "A Day should be between 1 and 31." }
+    }
+    companion object {
+        operator fun invoke(value: String?) = value?.let { Day(it.toInt()) }
     }
 }

@@ -1,6 +1,5 @@
-import be.swsb.application.Guess
+import be.swsb.application.*
 import be.swsb.application.Puzzle.Companion.aPuzzle
-import be.swsb.application.assemble
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFalse
@@ -44,7 +43,7 @@ class PuzzlesTest {
                 }
             }
 
-            assertNull(puzzles.find(2022,6,18))
+            assertNull(puzzles.find(Year(2022), Month(6), Day(18)))
         }
     }
 }

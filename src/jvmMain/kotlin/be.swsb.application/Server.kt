@@ -41,28 +41,46 @@ val puzzles: Puzzles =
 private fun EmojiSet.asJson() = PuzzleSetJson(value)
 private fun GuessJson.asGuess() = Guess(this.value)
 
+private fun puzzleGetSetFrom(setParam: String?)
+
 fun main() {
     embeddedServer(Netty, port = 8080, host = "127.0.0.1") {
         routing {
             get("/") {
                 call.respondHtml(HttpStatusCode.OK, HTML::index)
             }
-            get("/api/puzzle/2022/08/10?set=1") {
-                val year = 2022
-                val month = 8
-                val day = 10
-                val firstSet = puzzles.find(year, month, day)?.first
-                firstSet?.let { set -> call.respond(set.asJson()) }
-                    ?: call.respond(HttpStatusCode.NotFound, "Can't find puzzle for $year/$month/$day.")
-            }
-            post("/api/puzzle/2022/08/10") { res ->
-                val year = 2022
-                val month = 8
-                val day = 10
-                val guess = call.receive<GuessJson>().asGuess()
-                val result = puzzles.find(year, month, day)?.check(guess)
-                result?.let { call.respond(it) }
-                    ?: call.respond(HttpStatusCode.NotFound, "Can't find puzzle for $year/$month/$day.")
+            ///api/puzzle/2022/08/10?set=1
+            route("/api/puzzle/{year}/{month}/{day}") {
+                get {
+                    val year = Year(call.parameters["year"])
+                    val month = Month(call.parameters["month"])
+                    val day = Day(call.parameters["day"])
+                    if (year == null || month == null || day == null) {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            "Illegal arguments provided: $year/$month/$day"
+                        )
+                    } else {
+                        val set = call.request.queryParameters.get("set")
+                        val getSet: Puzzle.() -> EmojiSet = puzzleGetSetFrom(set)
+                        val firstSet = puzzles.find(year, month, day)?.getSet()
+                        firstSet?.let { set -> call.respond(set.asJson()) }
+                            ?: call.respond(HttpStatusCode.NotFound, "Can't find puzzle for $year/$month/$day.")
+                    }
+                }
+                post {
+                    val year = Year(call.parameters["year"])
+                    val month = Month(call.parameters["month"])
+                    val day = Day(call.parameters["day"])
+                    if (year == null || month == null || day == null) {
+                        call.respond(HttpStatusCode.BadRequest, "Illegal arguments provided: $year/$month/$day")
+                    } else {
+                        val guess = call.receive<GuessJson>().asGuess()
+                        val result = puzzles.find(year, month, day)?.check(guess)
+                        result?.let { call.respond(it) }
+                            ?: call.respond(HttpStatusCode.NotFound, "Can't find puzzle for $year/$month/$day.")
+                    }
+                }
             }
             static("/static") {
                 resources()

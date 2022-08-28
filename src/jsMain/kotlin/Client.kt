@@ -9,5 +9,10 @@ fun main() {
     val welcome = Welcome.create {
         name = "Kotlin/JS"
     }
+    val grid = MainGrid.create {
+        header = "Emodle!"
+        middle = Middle.create {}
+        footer = "Made with <3 in Kotlin by Sch3lp"
+    }
     createRoot(container).render(welcome)
 }

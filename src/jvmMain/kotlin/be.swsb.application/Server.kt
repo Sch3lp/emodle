@@ -1,6 +1,7 @@
 package be.swsb.application
 
 import be.swsb.application.Puzzle.Companion.aPuzzle
+import be.swsb.common.json.CreatePuzzleJson
 import be.swsb.common.json.GuessJson
 import be.swsb.common.json.PuzzleSetJson
 import io.ktor.http.HttpStatusCode
@@ -30,31 +31,6 @@ fun HTML.index() {
         script(src = "/static/emodle.js") {}
     }
 }
-
-val puzzles: Puzzles =
-    assemble {
-        on(2022, 8, 10) thereIs aPuzzle("The Grey") {
-            +"""🛩💥❄️🙍‍♂️🐺"""
-            +"""🎉🎉🎉🎉🎉"""
-        }
-    }
-
-private fun EmojiSet.asJson() = PuzzleSetJson(value)
-private fun GuessJson.asGuess() = Guess(this.value)
-typealias SetProvider = Puzzle.() -> EmojiSet?
-
-fun setProviderFrom(set: String?): SetProvider {
-    val nullProvider : SetProvider = { null }
-    return when (set) {
-        "1" -> Puzzle::first
-        "2" -> Puzzle::second
-        "3" -> Puzzle::third
-        "4" -> Puzzle::fourth
-        "5" -> Puzzle::fifth
-        else -> nullProvider
-    }
-}
-
 
 fun main() {
     embeddedServer(Netty, port = 8080, host = "127.0.0.1") {
@@ -111,7 +87,29 @@ fun main() {
     }.start(wait = true)
 }
 
-data class CreatePuzzleJson(
-    val solution: String,
-    val emojiSets: List<String>
-)
+val puzzles: Puzzles =
+    assemble {
+        on(2022, 8, 10) thereIs aPuzzle("The Grey") {
+            +"""🛩💥❄️🙍‍♂️🐺"""
+            +"""🎉🎉🎉🎉🎉"""
+            +"""🎉🎉🎉🎉🎉"""
+            +"""🎉🎉🎉🎉🎉"""
+            +"""🎉🎉🎉🎉🎉"""
+        }
+    }
+
+private fun EmojiSet.asJson() = PuzzleSetJson(value)
+private fun GuessJson.asGuess() = Guess(this.value)
+typealias SetProvider = Puzzle.() -> EmojiSet?
+
+fun setProviderFrom(set: String?): SetProvider {
+    val nullProvider : SetProvider = { null }
+    return when (set) {
+        "1" -> Puzzle::first
+        "2" -> Puzzle::second
+        "3" -> Puzzle::third
+        "4" -> Puzzle::fourth
+        "5" -> Puzzle::fifth
+        else -> nullProvider
+    }
+}

@@ -1,4 +1,5 @@
-import be.swsb.application.*
+package be.swsb.application
+
 import be.swsb.application.Puzzle.Companion.aPuzzle
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -13,21 +14,21 @@ class PuzzlesTest {
         @Test
         internal fun `A correct guess returns true`() {
             assertTrue {
-                aPuzzle("Snarf") {}.check(Guess("Snarf"))
+                aDefaultPuzzle("Snarf").check(Guess("Snarf"))
             }
         }
 
         @Test
         internal fun `An incorrect guess returns false`() {
             assertFalse {
-                aPuzzle("Snarf") {}.check(Guess("snorf"))
+                aDefaultPuzzle("Snarf").check(Guess("snorf"))
             }
         }
 
         @Test
         internal fun `An guesses are evaluated ignoring case`() {
             assertTrue {
-                aPuzzle("Snarf") {}.check(Guess("snarf"))
+                aDefaultPuzzle("Snarf").check(Guess("snarf"))
             }
         }
     }
@@ -40,10 +41,21 @@ class PuzzlesTest {
                 on(1981, 6, 18) thereIs aPuzzle("Birthday") {
                     +"""🎂🎂🎂🎂🎂"""
                     +"""🎉🎉🎉🎉🎉"""
+                    +"""🎉🎉🎉🎉🎉"""
+                    +"""🎉🎉🎉🎉🎉"""
+                    +"""🎉🎉🎉🎉🎉"""
                 }
             }
 
             assertNull(puzzles.find(Year(2022), Month(6), Day(18)))
         }
     }
+}
+
+fun aDefaultPuzzle(solution: String) = aPuzzle(solution) {
+    +"""🎂🎂🎂🎂🎂"""
+    +"""🎂🎂🎂🎂🎂"""
+    +"""🎂🎂🎂🎂🎂"""
+    +"""🎂🎂🎂🎂🎂"""
+    +"""🎂🎂🎂🎂🎂"""
 }

@@ -13,7 +13,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
-import java.time.LocalDate
 
 fun HTML.index() {
     head {
@@ -40,8 +39,20 @@ val puzzles: Puzzles =
 
 private fun EmojiSet.asJson() = PuzzleSetJson(value)
 private fun GuessJson.asGuess() = Guess(this.value)
+typealias SetProvider = Puzzle.() -> EmojiSet?
 
-private fun puzzleGetSetFrom(setParam: String?)
+fun setProviderFrom(set: String?): SetProvider {
+    val nullProvider : SetProvider = { null }
+    return when (set) {
+        "1" -> Puzzle::first
+        "2" -> Puzzle::second
+        "3" -> Puzzle::third
+        "4" -> Puzzle::fourth
+        "5" -> Puzzle::fifth
+        else -> nullProvider
+    }
+}
+
 
 fun main() {
     embeddedServer(Netty, port = 8080, host = "127.0.0.1") {
@@ -62,10 +73,10 @@ fun main() {
                         )
                     } else {
                         val set = call.request.queryParameters.get("set")
-                        val getSet: Puzzle.() -> EmojiSet = puzzleGetSetFrom(set)
-                        val firstSet = puzzles.find(year, month, day)?.getSet()
-                        firstSet?.let { set -> call.respond(set.asJson()) }
-                            ?: call.respond(HttpStatusCode.NotFound, "Can't find puzzle for $year/$month/$day.")
+                        val getEmojiSet: SetProvider = setProviderFrom(set)
+                        val requestedEmojiSet = puzzles.find(year, month, day)?.getEmojiSet()
+                        requestedEmojiSet?.let { emojiSet -> call.respond(emojiSet.asJson()) }
+                            ?: call.respond(HttpStatusCode.NotFound, "Can't find puzzle for $year/$month/$day for set $set.")
                     }
                 }
                 post {

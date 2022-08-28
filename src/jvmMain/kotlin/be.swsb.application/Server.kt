@@ -7,12 +7,14 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.html.*
+import io.ktor.server.http.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.Netty
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.html.*
+import java.time.LocalDate
 
 fun HTML.index() {
     head {
@@ -69,7 +71,7 @@ fun main() {
                     if (year == null || month == null || day == null) {
                         call.respond(
                             HttpStatusCode.BadRequest,
-                            "Illegal arguments provided: $year/$month/$day"
+                            "Illegal arguments provided: $year/$month/$day."
                         )
                     } else {
                         val set = call.request.queryParameters.get("set")
@@ -84,7 +86,7 @@ fun main() {
                     val month = Month(call.parameters["month"])
                     val day = Day(call.parameters["day"])
                     if (year == null || month == null || day == null) {
-                        call.respond(HttpStatusCode.BadRequest, "Illegal arguments provided: $year/$month/$day")
+                        call.respond(HttpStatusCode.BadRequest, "Illegal arguments provided: $year/$month/$day.")
                     } else {
                         val guess = call.receive<GuessJson>().asGuess()
                         val result = puzzles.find(year, month, day)?.check(guess)
@@ -93,9 +95,23 @@ fun main() {
                     }
                 }
             }
+            route("/api/puzzle") {
+                post {
+                    val createPuzzleJson = call.receive<CreatePuzzleJson>()
+                    val date : LocalDate = puzzles.append(aPuzzle(createPuzzleJson.solution) {
+                        createPuzzleJson.emojiSets.forEach { +it }
+                    })
+                    call.respond(HttpStatusCode.Created, "Your Puzzle will be provided on ${httpDateFormat.format(date)}.")
+                }
+            }
             static("/static") {
                 resources()
             }
         }
     }.start(wait = true)
 }
+
+data class CreatePuzzleJson(
+    val solution: String,
+    val emojiSets: List<String>
+)

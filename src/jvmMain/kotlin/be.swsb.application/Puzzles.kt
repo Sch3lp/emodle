@@ -46,7 +46,7 @@ value class EmojiSet(val value: String) {
 }
 
 @JvmInline
-value class Guess(val value: String) {
+value class Guess(private val value: String) {
     init {
         require(value.isNotBlank()) { "Value should not be empty." }
     }
@@ -54,10 +54,27 @@ value class Guess(val value: String) {
     fun solves(solution: Solution) = solution.value.equals(value, true)
 }
 
-class Puzzles(private val puzzleMap: Map<LocalDate, Puzzle>) {
+class Puzzles(private val puzzleMap: MutableMap<LocalDate, Puzzle>) {
+    init {
+        require(puzzleMap.isNotEmpty()) { "Cannot create Puzzles with an empty map." }
+    }
+
     fun find(year: Year, month: Month, day: Day): Puzzle? =
         puzzleMap[LocalDate.of(year.value, month.value, day.value)]
+
+    fun append(aNewPuzzle: Puzzle): LocalDate {
+        val lastDate = puzzleMap.entries.last().key
+        val puzzleDate = if (lastDate.isBeforeOrEqual(LocalDate.now())) {
+            LocalDate.now().plusDays(1)
+        } else {
+            lastDate.plusDays(1)
+        }
+        puzzleMap[puzzleDate] = aNewPuzzle
+        return puzzleDate
+    }
 }
+
+private fun LocalDate.isBeforeOrEqual(other: LocalDate) = this.isBefore(LocalDate.now()) || this.isEqual(LocalDate.now())
 
 fun assemble(scaffold: PuzzlesBuilder.() -> Unit): Puzzles {
     val builder = PuzzlesBuilder()

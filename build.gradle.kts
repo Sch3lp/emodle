@@ -53,6 +53,7 @@ kotlin {
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-react-router-dom:6.3.0-pre.332-kotlin-1.6.21")
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-redux:4.1.2-pre.332-kotlin-1.6.21")
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-react-redux:7.2.6-pre.332-kotlin-1.6.21")
+                implementation("io.ktor:ktor-client-core-js:2.0.1")
             }
         }
         val jsTest by getting

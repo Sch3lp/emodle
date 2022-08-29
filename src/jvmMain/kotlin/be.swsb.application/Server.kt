@@ -23,9 +23,6 @@ fun HTML.index() {
     }
     body {
         div {
-            +"Guess today's Emodle!"
-        }
-        div {
             id = "root"
         }
         script(src = "/static/emodle.js") {}

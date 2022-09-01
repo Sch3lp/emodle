@@ -2,13 +2,9 @@ package be.swsb.application
 
 import java.time.LocalDate
 
-class Puzzle private constructor(val solution: Solution, private val sets: List<EmojiSet>) {
-    val first get() = sets[0]
-    val second get() = sets[1]
-    val third get() = sets[2]
-    val fourth get() = sets[3]
-    val fifth get() = sets[4]
+class Puzzle private constructor(private val solution: Solution, private val sets: List<EmojiSet>) {
 
+    fun take(n: String?) = n?.let { sets.take(it.toInt()) } ?: sets
     fun check(guess: Guess): Boolean = guess.solves(solution)
 
     init {

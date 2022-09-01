@@ -5,6 +5,7 @@ import be.swsb.common.json.CreatePuzzleJson
 import be.swsb.common.json.GuessJson
 import be.swsb.common.json.PuzzleSetJson
 import io.ktor.http.*
+import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.embeddedServer
@@ -62,18 +63,15 @@ fun main() {
                 call.respondHtml(HttpStatusCode.OK, HTML::index)
             }
             ///api/puzzle/2022/08/10?set=1
-            route("/api/puzzle/{year}/{month}/{day}") {
+            route("/api/puzzle/{year}/{month}/{day}/{set}") {
                 get {
                     val year = Year(call.parameters["year"])
                     val month = Month(call.parameters["month"])
                     val day = Day(call.parameters["day"])
-                    if (year == null || month == null || day == null) {
-                        call.respond(
-                            HttpStatusCode.BadRequest,
-                            "Illegal arguments provided: $year/$month/$day."
-                        )
+                    val set = Set(call.parameters["set"])
+                    if (year == null || month == null || day == null || set == null) {
+                        call.respond(BadRequest, "Illegal arguments provided: $year/$month/$day/$set.")
                     } else {
-                        val set = call.request.queryParameters["set"]
                         val requestedEmojiSet = puzzles.find(year, month, day)?.take(set)
                         requestedEmojiSet?.let { emojiSets -> call.respond(emojiSets.asJson()) }
                             ?: call.respond(
@@ -86,10 +84,11 @@ fun main() {
                     val year = Year(call.parameters["year"])
                     val month = Month(call.parameters["month"])
                     val day = Day(call.parameters["day"])
-                    if (year == null || month == null || day == null) {
-                        call.respond(HttpStatusCode.BadRequest, "Illegal arguments provided: $year/$month/$day.")
+                    val set = Set(call.parameters["set"])
+                    if (year == null || month == null || day == null || set == null) {
+                        call.respond(BadRequest, "Illegal arguments provided: $year/$month/$day/$set.")
                     } else {
-                        val guess = call.receive<GuessJson>().asGuess()
+                        val guess = call.receive<GuessJson>().asGuess().also { println("Guess received: $it") }
                         val result = puzzles.find(year, month, day)?.check(guess)
                         result?.let { call.respond(it) }
                             ?: call.respond(HttpStatusCode.NotFound, "Can't find puzzle for $year/$month/$day.")

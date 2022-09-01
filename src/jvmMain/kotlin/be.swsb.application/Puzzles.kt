@@ -4,7 +4,7 @@ import java.time.LocalDate
 
 class Puzzle private constructor(private val solution: Solution, private val sets: List<EmojiSet>) {
 
-    fun take(n: String?) = n?.let { sets.take(it.toInt()) } ?: sets
+    fun take(set: Set) = sets.take(set.value)
     fun check(guess: Guess): Boolean = guess.solves(solution)
 
     init {
@@ -125,5 +125,16 @@ value class Day(val value: Int) {
 
     companion object {
         operator fun invoke(value: String?) = value?.let { Day(it.toInt()) }
+    }
+}
+
+@JvmInline
+value class Set(val value: Int) {
+    init {
+        require(value in 1..5) { "A Set should be between 1 and 5." }
+    }
+
+    companion object {
+        operator fun invoke(value: String?) = value?.let { Set(it.toInt()) }
     }
 }

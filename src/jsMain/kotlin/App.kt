@@ -20,26 +20,29 @@ val App = FC<Props> {
     }
 
     val guessHandler: (String) -> Unit = { guess: String ->
+        var set = currentSet
         scope.launch {
             console.log("About to make the $currentSet guess.")
-            isSolved = answer(guess, currentSet)
-            if (!isSolved) {
-                var set = currentSet
-                console.log("set = $set")
-                set+=1
-                console.log("set after +=1: $set")
+            val result = answer(guess, currentSet).also { isSolved = it }
+            if (!result) {
+                console.log("set = $set") //1
+                set += 1
+                console.log("set after +=1: $set") //2
                 if (set <= maxGuesses) {
                     sets = getPuzzle(set)
                 }
-                currentSet+=1
+                console.log("currentSet : $currentSet") //1
+                currentSet += 1
+                console.log("currentSet after +=1 : $currentSet") //1
+            } else {
+                sets = getPuzzle(maxGuesses)
             }
         }
-        Unit
     }
 
     div {
         h1 {
-            + "Emodle of the Day!"
+            +"Emodle of the Day!"
         }
         EmodleOfTheDay {
             setsToShow = sets

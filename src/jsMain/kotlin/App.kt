@@ -1,8 +1,11 @@
+import kotlinx.coroutines.MainScope
 import react.*
 import react.dom.html.ReactHTML.div
 import react.router.Route
 import react.router.Routes
 import react.router.dom.BrowserRouter
+
+val scope = MainScope()
 
 val App = FC<Props> {
 

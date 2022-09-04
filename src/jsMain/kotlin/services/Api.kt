@@ -38,9 +38,10 @@ suspend fun answer(guess: String, currentSet: Int) : Boolean {
     return response.body()
 }
 
-suspend fun createPuzzle(solution: String, emojiSets: List<String>) {
-    jsonClient.post("$endpoint/api/puzzle") {
+suspend fun createPuzzle(solution: String, emojiSets: List<String>) : String {
+    val response = jsonClient.post("$endpoint/api/puzzle") {
         contentType(ContentType.Application.Json)
         setBody(CreatePuzzleJson(solution, emojiSets))
     }
+    return response.body()
 }

@@ -14,7 +14,6 @@ import react.useState
 import services.answer
 import services.getPuzzle
 
-private val scope = MainScope()
 private const val maxGuesses = 5
 
 val Home = FC<Props> {

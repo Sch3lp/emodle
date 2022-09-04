@@ -9,7 +9,6 @@ import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.embeddedServer
-import io.ktor.server.html.*
 import io.ktor.server.http.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.Netty
@@ -20,12 +19,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
-import kotlinx.html.*
+import io.ktor.util.pipeline.*
 import kotlinx.serialization.json.Json
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.*
 
 data class EmodleCookie(val guesses: Int = 0)
 
@@ -53,33 +49,17 @@ fun main() {
             ///api/puzzle/2022/08/10?set=1
             route("/api/puzzle/{year}/{month}/{day}/{set}") {
                 get {
-                    val year = Year(call.parameters["year"])
-                    val month = Month(call.parameters["month"])
-                    val day = Day(call.parameters["day"])
-                    val set = Set(call.parameters["set"])
-                    if (year == null || month == null || day == null || set == null) {
-                        call.respond(BadRequest, "Illegal arguments provided: $year/$month/$day/$set.")
-                    } else {
+                    withValidatedParams { year, month, day, set ->
                         val requestedEmojiSet = puzzles.find(year, month, day)?.take(set)
                         requestedEmojiSet?.let { emojiSets -> call.respond(emojiSets.asJson()) }
-                            ?: call.respond(
-                                HttpStatusCode.NotFound,
-                                "Can't find puzzle for $year/$month/$day for set $set."
-                            )
+                            ?: call.respond(HttpStatusCode.NotFound, "Can't find puzzle for $year/$month/$day for set $set.")
                     }
                 }
                 post {
-                    val year = Year(call.parameters["year"])
-                    val month = Month(call.parameters["month"])
-                    val day = Day(call.parameters["day"])
-                    val set = Set(call.parameters["set"])
-                    if (year == null || month == null || day == null || set == null) {
-                        call.respond(BadRequest, "Illegal arguments provided: $year/$month/$day/$set.")
-                    } else {
-                        val guess = call.receive<GuessJson>().asGuess().also { println("Guess received: $it") }
+                    withValidatedParams { year, month, day, set ->
+                        val guess = call.receive<GuessJson>().asGuess()
                         val result = puzzles.find(year, month, day)?.check(guess)
-                        result?.let { call.respond(it) }
-                            ?: call.respond(HttpStatusCode.NotFound, "Can't find puzzle for $year/$month/$day.")
+                        result?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NotFound, "Can't find puzzle for $year/$month/$day.")
                     }
                 }
             }
@@ -122,3 +102,17 @@ val puzzles: Puzzles =
 private fun EmojiSet.asJson() = PuzzleSetJson(value)
 private fun List<EmojiSet>.asJson() = this.map(EmojiSet::asJson)
 private fun GuessJson.asGuess() = Guess(this.value)
+
+private suspend fun PipelineContext<Unit, ApplicationCall>.withValidatedParams(
+    respond: suspend PipelineContext<Unit, ApplicationCall>.(Year, Month, Day, Set) -> Unit
+): Unit {
+    val year = Year(call.parameters["year"])
+    val month = Month(call.parameters["month"])
+    val day = Day(call.parameters["day"])
+    val set = Set(call.parameters["set"])
+    if (year == null || month == null || day == null || set == null) {
+        call.respond(BadRequest, "Illegal arguments provided: $year/$month/$day/$set.")
+    } else {
+        respond(year, month, day, set)
+    }
+}

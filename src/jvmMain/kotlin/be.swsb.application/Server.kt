@@ -24,18 +24,6 @@ import kotlinx.html.*
 import kotlinx.serialization.json.Json
 import java.time.LocalDate
 
-fun HTML.index() {
-    head {
-        title("Emodle!")
-    }
-    body {
-        div {
-            id = "root"
-        }
-        script(src = "/static/emodle.js") {}
-    }
-}
-
 data class EmodleCookie(val guesses: Int = 0)
 
 fun main() {
@@ -59,9 +47,6 @@ fun main() {
         }
 
         routing {
-            get("/") {
-                call.respondHtml(HttpStatusCode.OK, HTML::index)
-            }
             ///api/puzzle/2022/08/10?set=1
             route("/api/puzzle/{year}/{month}/{day}/{set}") {
                 get {
@@ -107,9 +92,15 @@ fun main() {
                     )
                 }
             }
+            singlePageApplication {
+                useResources = true
+                defaultPage = "index.html"
+                ignoreFiles { it.endsWith(".txt") }
+            }
             static("/static") {
                 resources()
             }
+            trace { application.log.info(it.buildText()) }
         }
     }.start(wait = true)
 }

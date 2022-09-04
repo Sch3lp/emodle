@@ -1,3 +1,4 @@
+import be.swsb.common.json.CreatePuzzleJson
 import be.swsb.common.json.GuessJson
 import be.swsb.common.json.PuzzleSetJson
 import io.ktor.client.*
@@ -33,4 +34,11 @@ suspend fun answer(guess: String, currentSet: Int) : Boolean {
         setBody(GuessJson(guess))
     }
     return response.body()
+}
+
+suspend fun createPuzzle(solution: String, emojiSets: List<String>) {
+    jsonClient.post("$endpoint/api/puzzle") {
+        contentType(ContentType.Application.Json)
+        setBody(CreatePuzzleJson(solution, emojiSets))
+    }
 }

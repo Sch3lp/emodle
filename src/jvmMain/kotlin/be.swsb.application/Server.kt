@@ -23,6 +23,9 @@ import io.ktor.server.sessions.*
 import kotlinx.html.*
 import kotlinx.serialization.json.Json
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 data class EmodleCookie(val guesses: Int = 0)
 
@@ -83,9 +86,9 @@ fun main() {
             route("/api/puzzle") {
                 post {
                     val createPuzzleJson = call.receive<CreatePuzzleJson>()
-                    val date: LocalDate = puzzles.append(aPuzzle(createPuzzleJson.solution) {
+                    val date: LocalDateTime = puzzles.append(aPuzzle(createPuzzleJson.solution) {
                         createPuzzleJson.emojiSets.forEach { +it }
-                    })
+                    }).atStartOfDay()
                     call.respond(
                         HttpStatusCode.Created,
                         "Your Puzzle will be provided on ${httpDateFormat.format(date)}."

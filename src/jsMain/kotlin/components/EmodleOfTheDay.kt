@@ -1,3 +1,5 @@
+package components
+
 import be.swsb.common.json.PuzzleSetJson
 import react.FC
 import react.Props

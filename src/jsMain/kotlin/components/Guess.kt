@@ -1,3 +1,5 @@
+package components
+
 import org.w3c.dom.HTMLFormElement
 import org.w3c.dom.HTMLInputElement
 import react.FC

@@ -1,3 +1,5 @@
+package services
+
 import be.swsb.common.json.CreatePuzzleJson
 import be.swsb.common.json.GuessJson
 import be.swsb.common.json.PuzzleSetJson

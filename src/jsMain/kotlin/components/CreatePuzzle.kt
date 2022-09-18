@@ -40,7 +40,11 @@ val CreatePuzzle = FC<Props> { props ->
         }
     }
 
-    if (creationFeedback == null) {
+    if (creationFeedback != null) {
+        h2 {
+            +creationFeedback!!
+        }
+    } else {
         div {
             h2 { +"Your puzzle" }
             form {
@@ -68,10 +72,6 @@ val CreatePuzzle = FC<Props> { props ->
                     value = "Create"
                 }
             }
-        }
-    } else {
-        h2 {
-            +creationFeedback!!
         }
     }
 }

@@ -8,7 +8,7 @@ class Puzzle private constructor(private val solution: Solution, private val set
     fun check(guess: Guess): Boolean = guess.solves(solution)
 
     init {
-        require(sets.size == 5) { "A Puzzle needs exactly 5 sets of emoji's" }
+        require(sets.size == 5) { "A Puzzle needs exactly 5 sets of emoji's." }
     }
 
     companion object {
@@ -30,23 +30,24 @@ class Puzzle private constructor(private val solution: Solution, private val set
 @JvmInline
 value class Solution(val value: String) {
     init {
-        require(value.isNotBlank()) { "Value should not be empty." }
+        require(value.isNotBlank()) { "A Solution should not be empty." }
     }
 }
 
 @JvmInline
 value class EmojiSet(val value: String) {
+    private val emojis
+        get() = value.split(" ").filterNot { it.isBlank() }
+
     init {
-        require(value.isNotBlank()) { "Value should not be empty." }
+        require(value.isNotBlank()) { "An EmojiSet should not be empty." }
+        require(emojis.size == 5) { "An EmojiSet should exactly 5 emoji's." }
+        require(emojis.all { it.isEmoji() }) { "An EmojiSet should only contain emoji's." }
     }
 }
 
 @JvmInline
 value class Guess(private val value: String) {
-    init {
-        require(value.isNotBlank()) { "Value should not be empty." }
-    }
-
     fun solves(solution: Solution) = solution.value.equals(value, true)
 }
 

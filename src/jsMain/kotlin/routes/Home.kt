@@ -52,11 +52,10 @@ val Home = FC<Props> {
         css {
             display = Display.grid
             gap = 20.px
-//            gridTemplateColumns = minmax(1.fr, 3.fr)
             gridTemplateAreas = GridTemplateAreas(
-                EmodleGrid.Header.centered(),
-                EmodleGrid.Content.centered(),
-                EmodleGrid.Footer.centered(),
+                ident(". header ."),
+                ident(". content ."),
+                ident(". footer ."),
             )
         }
         h1 {
@@ -65,11 +64,11 @@ val Home = FC<Props> {
                 href = "create"
                 +"Create your own!"
             }
-            css { gridArea = EmodleGrid.Header.asIdent() }
+            css { gridArea = ident("header") }
         }
         div {
             EmodleOfTheDay { setsToShow = sets }
-            css { gridArea = EmodleGrid.Content.asIdent() }
+            css { gridArea = ident("content") }
         }
         div {
             if (isSolved) {
@@ -81,16 +80,7 @@ val Home = FC<Props> {
                     h2 { +"You lost! You suck at Emodle!" }
                 }
             }
-            css { gridArea = EmodleGrid.Footer.asIdent() }
+            css { gridArea = ident("footer") }
         }
     }
-}
-
-sealed class EmodleGrid(private val id: String) {
-    object Header : EmodleGrid("header")
-    object Content : EmodleGrid("content")
-    object Footer : EmodleGrid("footer")
-    private val empty = "."
-    fun centered() = ident(". $id .")
-    fun asIdent() = ident(id)
 }

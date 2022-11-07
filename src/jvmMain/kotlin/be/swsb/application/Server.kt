@@ -4,11 +4,13 @@ import be.swsb.application.Puzzle.Companion.aPuzzle
 import be.swsb.common.json.CreatePuzzleJson
 import be.swsb.common.json.GuessJson
 import be.swsb.common.json.PuzzleSetJson
+import be.swsb.ui.pages.TodaysEmodle
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.embeddedServer
+import io.ktor.server.html.*
 import io.ktor.server.http.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.Netty
@@ -20,6 +22,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import io.ktor.util.pipeline.*
+import kotlinx.css.*
 import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
 
@@ -46,39 +49,10 @@ fun main() {
         }
 
         routing {
-            ///api/puzzle/2022/08/10?set=1
-            route("/api/puzzle/{year}/{month}/{day}/{set}") {
-                get {
-                    withValidatedParams { year, month, day, set ->
-                        val requestedEmojiSet = puzzles.find(year, month, day)?.take(set)
-                        requestedEmojiSet?.let { emojiSets -> call.respond(emojiSets.asJson()) }
-                            ?: call.respond(HttpStatusCode.NotFound, "Can't find puzzle for $year/$month/$day for set $set.")
-                    }
-                }
-                post {
-                    withValidatedParams { year, month, day, set ->
-                        val guess = call.receive<GuessJson>().asGuess()
-                        val result = puzzles.find(year, month, day)?.check(guess)
-                        result?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NotFound, "Can't find puzzle for $year/$month/$day.")
-                    }
-                }
-            }
-            route("/api/puzzle") {
-                post {
-                    val createPuzzleJson = call.receive<CreatePuzzleJson>()
-                    val date: LocalDateTime = puzzles.append(aPuzzle(createPuzzleJson.solution) {
-                        createPuzzleJson.emojiSets.forEach { +it }
-                    }).atStartOfDay()
-                    call.respond(
-                        HttpStatusCode.Created,
-                        "Your Puzzle will be provided on ${httpDateFormat.format(date)}."
-                    )
-                }
-            }
-            singlePageApplication {
-                useResources = true
-                defaultPage = "index.html"
-                ignoreFiles { it.endsWith(".txt") }
+            apiRoutes()
+            uiRoutes()
+            static("/favicon.ico") {
+                resource("favicon.ico")
             }
             static("/static") {
                 resources()
@@ -86,6 +60,73 @@ fun main() {
             trace { application.log.info(it.buildText()) }
         }
     }.start(wait = true)
+}
+
+suspend inline fun ApplicationCall.respondCss(builder: CssBuilder.() -> Unit) {
+    this.respondText(CssBuilder().apply(builder).toString(), ContentType.Text.CSS)
+}
+
+private fun Routing.uiRoutes() {
+    route("/") {
+        get {
+            call.respondHtml(HttpStatusCode.OK) {
+                TodaysEmodle()
+            }
+        }
+    }
+    route("/puzzle/{year}/{month}/{day}/{set}") {
+        post {
+            withValidatedParams { year, month, day, set ->
+                val guess = call.receiveParameters()["guess"].toString()
+                val result = puzzles.find(year, month, day)?.check(Guess(guess))
+                result?.let { call.respond(it) } ?: call.respond(
+                    HttpStatusCode.NotFound,
+                    "Can't find puzzle for $year/$month/$day."
+                )
+            }
+        }
+    }
+    get("/styles.css") {
+        call.respondCss {
+            TodaysEmodle()
+        }
+    }
+}
+
+
+private fun Routing.apiRoutes() {
+    ///api/puzzle/2022/08/10?set=1
+    route("/api/puzzle/{year}/{month}/{day}/{set}") {
+        get {
+            withValidatedParams { year, month, day, set ->
+                val requestedEmojiSet = puzzles.find(year, month, day)?.take(set)
+                requestedEmojiSet?.let { emojiSets -> call.respond(emojiSets.asJson()) }
+                    ?: call.respond(HttpStatusCode.NotFound, "Can't find puzzle for $year/$month/$day for set $set.")
+            }
+        }
+        post {
+            withValidatedParams { year, month, day, set ->
+                val guess = call.receive<GuessJson>().asGuess()
+                val result = puzzles.find(year, month, day)?.check(guess)
+                result?.let { call.respond(it) } ?: call.respond(
+                    HttpStatusCode.NotFound,
+                    "Can't find puzzle for $year/$month/$day."
+                )
+            }
+        }
+    }
+    route("/api/puzzle") {
+        post {
+            val createPuzzleJson = call.receive<CreatePuzzleJson>()
+            val date: LocalDateTime = puzzles.append(aPuzzle(createPuzzleJson.solution) {
+                createPuzzleJson.emojiSets.forEach { +it }
+            }).atStartOfDay()
+            call.respond(
+                HttpStatusCode.Created,
+                "Your Puzzle will be provided on ${httpDateFormat.format(date)}."
+            )
+        }
+    }
 }
 
 val puzzles: Puzzles =

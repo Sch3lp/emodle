@@ -12,6 +12,12 @@ fun HTML.page(bodyDefinition: BODY.() -> Unit) {
             integrity = "sha384-wg5Y/JwF7VxGk4zLsJEcAojRtlVp1FKKdGy1qN+OMtdq72WRvX/EdRdqg/LOhYeV"
             attributes["crossorigin"] = "anonymous"
         }
+        script {
+            src = "https://unpkg.com/htmx.org/dist/ext/multi-swap.js"
+        }
     }
-    body { bodyDefinition() }
+    body {
+        attributes["hx-ext"] = "multi-swap"
+        bodyDefinition()
+    }
 }

@@ -131,6 +131,8 @@ value class Day(val value: Int) {
 
 @JvmInline
 value class HintIndex(val value: Int) {
+    operator fun plus(inc: Int) = HintIndex((value + inc).coerceAtMost(5))
+
     init {
         require(value in 1..5) { "A HintIndex should be between 1 and 5." }
     }

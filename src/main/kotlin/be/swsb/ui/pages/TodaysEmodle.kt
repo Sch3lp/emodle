@@ -3,10 +3,10 @@ package be.swsb.ui.pages
 import be.swsb.application.*
 import be.swsb.application.HintIndex
 import be.swsb.ui.htmx.*
-import be.swsb.ui.htmx.HxSwap.OuterHTML
 import be.swsb.ui.htmx.HxTarget.*
 import kotlinx.css.*
 import kotlinx.html.*
+
 
 fun HTML.TodaysEmodle(id: String = "TodaysEmodle") = page {
     div("TodaysEmodle") {
@@ -20,25 +20,29 @@ fun HTML.TodaysEmodle(id: String = "TodaysEmodle") = page {
             hxTarget(`this`)
             val hintIndex = HintIndex(1)
             EmodleOfTheDay(hintIndex = hintIndex)
-            Guess(hintIndex = hintIndex)
+            GuessInput(hintIndex = hintIndex)
         }
     }
 }
 
-fun DIV.Guess(hintIndex: HintIndex) {
-    p { +"Your guess:" }
+const val GuessInputFormId = "guessFormId"
+fun DIV.GuessInput(hintIndex: HintIndex) {
+    println("hintIndex: $hintIndex")
     form {
+        id = GuessInputFormId
         hxPost("/puzzle/2022/8/10/${hintIndex.value}")
         hxTarget(`this`)
-        hxSwap(OuterHTML)
+        hxSwap(HxSwap.Multi(id, EmodleOfTheDayId))
+        p { +"Your guess:" }
         input {
             type = InputType.text
-            name = "value"
+            name = "guess"
         }
     }
 }
 
-fun DIV.EmodleOfTheDay(id: String = "EmodleOfTheDay", hintIndex: HintIndex) {
+const val EmodleOfTheDayId = "emodleOfTheDayId"
+fun DIV.EmodleOfTheDay(id: String = EmodleOfTheDayId, hintIndex: HintIndex) {
     val usedHints = puzzles.find(Year(2022), Month(8), Day(10))?.take(hintIndex)
     div {
         this.id = id

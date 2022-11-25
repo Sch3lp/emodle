@@ -23,6 +23,7 @@ dependencies {
     implementation("org.jetbrains.kotlin-wrappers:kotlin-css-jvm:$kotlinCssVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+
     testImplementation(kotlin("test")) // The Kotlin test library
 }
 

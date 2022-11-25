@@ -13,9 +13,11 @@ fun HTMLTag.hxPost(url: String) {
     attributes += "hx-post" to url
 }
 
-enum class HxSwap(val value: String) {
-    OuterHTML("outerHTML")
+sealed class HxSwap(val value: String) {
+    object OuterHTML: HxSwap("outerHTML")
+    class Multi(vararg ids: String): HxSwap("multi:${ids.joinToString(",") { id -> "#$id:outerHTML" }}")
 }
+
 fun HTMLTag.hxSwap(hxSwap: HxSwap) {
     attributes += "hx-swap" to hxSwap.value
 }

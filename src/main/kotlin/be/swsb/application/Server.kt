@@ -1,6 +1,9 @@
 package be.swsb.application
 
 import be.swsb.application.Puzzle.Companion.aPuzzle
+import be.swsb.ui.pages.EmodleOfTheDay
+import be.swsb.ui.pages.GuessInput
+import be.swsb.ui.pages.GuessInputFormId
 import be.swsb.ui.pages.TodaysEmodle
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
@@ -19,6 +22,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import io.ktor.util.pipeline.*
 import kotlinx.css.*
+import kotlinx.html.*
 import kotlinx.serialization.json.Json
 
 data class EmodleCookie(val guesses: Int = 0)
@@ -71,9 +75,9 @@ private fun Routing.uiRoutes() {
     route("/puzzle/{year}/{month}/{day}/{hintindex}") {
         post {
             withValidatedParams { year, month, day, hintindex ->
-                val guess = call.receiveParameters()["guess"].toString()
-                val result = puzzles.find(year, month, day)?.check(Guess(guess))
-                result?.let { call.respond(it) } ?: call.respond(
+                val guess = call.receiveParameters()["guess"].toString().also { println("guessed: $it") }
+                val result: Boolean? = puzzles.find(year, month, day)?.check(Guess(guess))
+                result?.let { guessResult -> respondGuess(guessResult, hintindex) } ?: call.respond(
                     HttpStatusCode.NotFound,
                     "Can't find puzzle for $year/$month/$day."
                 )
@@ -83,6 +87,21 @@ private fun Routing.uiRoutes() {
     get("/styles.css") {
         call.respondCss {
             TodaysEmodle()
+        }
+    }
+}
+
+private suspend fun PipelineContext<Unit, ApplicationCall>.respondGuess(
+    guessResult: Boolean,
+    currentHintIndex: HintIndex
+) {
+    call.respondHtml {
+        body {
+            div {
+                val newHintIndex = currentHintIndex + 1
+                EmodleOfTheDay(hintIndex = newHintIndex)
+                GuessInput(newHintIndex)
+            }
         }
     }
 }
@@ -140,7 +159,7 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.withValidatedParams(
     val year = Year(call.parameters["year"])
     val month = Month(call.parameters["month"])
     val day = Day(call.parameters["day"])
-    val hintIndex = HintIndex(call.parameters["hints"])
+    val hintIndex = HintIndex(call.parameters["hintindex"])
     if (year == null || month == null || day == null || hintIndex == null) {
         call.respond(BadRequest, "Illegal arguments provided: $year/$month/$day/$hintIndex.")
     } else {

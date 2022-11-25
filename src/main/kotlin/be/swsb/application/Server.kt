@@ -22,7 +22,6 @@ import io.ktor.util.pipeline.*
 import kotlinx.css.*
 import kotlinx.html.*
 import kotlinx.serialization.json.Json
-import java.time.LocalDate
 
 data class EmodleCookie(val guesses: Int = 0)
 
@@ -93,20 +92,11 @@ private fun Routing.uiRoutes() {
     route("/puzzles") {
         post {
             val form = call.receiveParameters()
-            val enteredSolution = form["enteredSolution"]!!
-            val hint1 = form["hint1"]!!
-            val hint2 = form["hint2"]!!
-            val hint3 = form["hint3"]!!
-            val hint4 = form["hint4"]!!
-            val hint5 = form["hint5"]!!
+            val solution = form["enteredSolution"]!!
+            val hints = (1..5).map { idx -> form["hint$idx"]!! }
 
-            val date = puzzles.append(aPuzzle(enteredSolution) {
-                +hint1
-                +hint2
-                +hint3
-                +hint4
-                +hint5
-            }).atStartOfDay()
+            val newPuzzle = aPuzzle(solution) { hints.forEach { hint -> +hint } }
+            val date = puzzles.append(newPuzzle).atStartOfDay()
 
             call.respondHtml {
                 body {

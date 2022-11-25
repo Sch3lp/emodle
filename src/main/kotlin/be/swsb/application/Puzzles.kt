@@ -131,11 +131,11 @@ value class Day(val value: Int) {
 
 @JvmInline
 value class HintIndex(val value: Int) {
-    operator fun plus(inc: Int) = HintIndex((value + inc).coerceAtMost(5))
-    fun isMax() = this == HintIndex(5)
+    operator fun plus(inc: Int) = HintIndex((value + inc).coerceAtMost(6))
+    fun isMax() = this.value == 6
 
     init {
-        require(value in 1..5) { "A HintIndex should be between 1 and 5." }
+        require(value in 1..6) { "A HintIndex should be between 1 and 6." }
     }
 
     companion object {

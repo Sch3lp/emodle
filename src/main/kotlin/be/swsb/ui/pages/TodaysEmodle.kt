@@ -27,26 +27,32 @@ fun HTML.TodaysEmodle(id: String = "TodaysEmodle") = page {
 
 const val GuessInputFormId = "guessFormId"
 fun DIV.GuessInput(hintIndex: HintIndex, guessResult: Boolean) {
-    if (hintIndex.isMax()) {
+    if (guessResult) {
         p {
             id = GuessInputFormId
-            +"😭😭😭 Jozef... Ik ben teleurgesteld in jou. 😭😭😭"
+            +"🎉🎊🥳 You guessed correctly! 🎉🎊🥳"
         }
     } else {
-        form {
-            id = GuessInputFormId
-            hxPost("/puzzle/2022/8/10/${hintIndex.value}")
-            hxTarget(`this`)
-            hxSwap(HxSwap.Multi(id, EmodleOfTheDayId))
-            p { +"Your guess:" }
-            input {
-                type = InputType.text
-                name = "guess"
-                autoFocus = true
+        if (hintIndex.isMax()) {
+            p {
+                id = GuessInputFormId
+                +"😭😭😭 Jozef... Ik ben teleurgesteld in jou. 😭😭😭"
+            }
+        } else {
+            form {
+                id = GuessInputFormId
+                hxPost("/puzzle/2022/8/10/${hintIndex.value}")
+                hxTarget(`this`)
+                hxSwap(HxSwap.Multi(id, EmodleOfTheDayId))
+                p { +"Your guess:" }
+                input {
+                    type = InputType.text
+                    name = "guess"
+                    autoFocus = true
+                }
             }
         }
-    }
-}
+    }}
 
 const val EmodleOfTheDayId = "emodleOfTheDayId"
 fun DIV.EmodleOfTheDay(id: String = EmodleOfTheDayId, hintIndex: HintIndex) {

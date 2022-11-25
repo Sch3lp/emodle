@@ -23,6 +23,8 @@ dependencies {
     implementation("org.jetbrains.kotlin-wrappers:kotlin-css-jvm:$kotlinCssVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation("org.slf4j:slf4j-api:2.0.4")
+    runtimeOnly("ch.qos.logback:logback-classic:1.4.5")
 
     testImplementation(kotlin("test")) // The Kotlin test library
 }

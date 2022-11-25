@@ -8,7 +8,6 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.html.*
-import io.ktor.server.http.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.compression.*
@@ -21,7 +20,6 @@ import io.ktor.server.sessions.*
 import io.ktor.util.pipeline.*
 import kotlinx.css.*
 import kotlinx.serialization.json.Json
-import java.time.LocalDateTime
 
 data class EmodleCookie(val guesses: Int = 0)
 
@@ -70,9 +68,9 @@ private fun Routing.uiRoutes() {
             }
         }
     }
-    route("/puzzle/{year}/{month}/{day}/{set}") {
+    route("/puzzle/{year}/{month}/{day}/{hintindex}") {
         post {
-            withValidatedParams { year, month, day, set ->
+            withValidatedParams { year, month, day, hintindex ->
                 val guess = call.receiveParameters()["guess"].toString()
                 val result = puzzles.find(year, month, day)?.check(Guess(guess))
                 result?.let { call.respond(it) } ?: call.respond(
@@ -137,15 +135,15 @@ val puzzles: Puzzles =
     }
 
 private suspend fun PipelineContext<Unit, ApplicationCall>.withValidatedParams(
-    respond: suspend PipelineContext<Unit, ApplicationCall>.(Year, Month, Day, Set) -> Unit
+    respond: suspend PipelineContext<Unit, ApplicationCall>.(Year, Month, Day, HintIndex) -> Unit
 ): Unit {
     val year = Year(call.parameters["year"])
     val month = Month(call.parameters["month"])
     val day = Day(call.parameters["day"])
-    val set = Set(call.parameters["set"])
-    if (year == null || month == null || day == null || set == null) {
-        call.respond(BadRequest, "Illegal arguments provided: $year/$month/$day/$set.")
+    val hintIndex = HintIndex(call.parameters["hints"])
+    if (year == null || month == null || day == null || hintIndex == null) {
+        call.respond(BadRequest, "Illegal arguments provided: $year/$month/$day/$hintIndex.")
     } else {
-        respond(year, month, day, set)
+        respond(year, month, day, hintIndex)
     }
 }

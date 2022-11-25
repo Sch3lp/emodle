@@ -2,27 +2,27 @@ package be.swsb.application
 
 import java.time.LocalDate
 
-class Puzzle private constructor(private val solution: Solution, private val sets: List<EmojiSet>) {
+class Puzzle private constructor(private val solution: Solution, private val hints: List<Hint>) {
 
-    fun take(set: Set) = sets.take(set.value)
+    fun take(hintIndex: HintIndex) = hints.take(hintIndex.value)
     fun check(guess: Guess): Boolean = guess.solves(solution)
 
     init {
-        require(sets.size == 5) { "A Puzzle needs exactly 5 sets of emoji's." }
+        require(hints.size == 5) { "A Puzzle needs exactly 5 hints of emoji's." }
     }
 
     companion object {
-        fun aPuzzle(solution: String, sets: EmojiSetsBuilder.() -> Unit): Puzzle {
-            return Puzzle(Solution(solution), EmojiSetsBuilder().apply(sets).build())
+        fun aPuzzle(solution: String, hints: HintsBuilder.() -> Unit): Puzzle {
+            return Puzzle(Solution(solution), HintsBuilder().apply(hints).build())
         }
 
-        class EmojiSetsBuilder {
-            private val sets: MutableList<EmojiSet> = mutableListOf()
+        class HintsBuilder {
+            private val hints: MutableList<Hint> = mutableListOf()
             internal operator fun String.unaryPlus() {
-                sets.add(EmojiSet(this))
+                hints.add(Hint(this))
             }
 
-            fun build(): List<EmojiSet> = sets
+            fun build(): List<Hint> = hints
         }
     }
 }
@@ -35,14 +35,14 @@ value class Solution(val value: String) {
 }
 
 @JvmInline
-value class EmojiSet(val value: String) {
+value class Hint(val value: String) {
     private val emojis
         get() = value.split(" ").filterNot { it.isBlank() }
 
     init {
-        require(value.isNotBlank()) { "An EmojiSet should not be empty." }
-        require(emojis.size == 5) { "An EmojiSet should exactly 5 emoji's." }
-        require(emojis.all { it.isEmoji() }) { "An EmojiSet should only contain emoji's." }
+        require(value.isNotBlank()) { "Hints should not be empty." }
+        require(emojis.size == 5) { "Hints should exactly 5 emoji's." }
+        require(emojis.all { it.isEmoji() }) { "Hints should only contain emoji's." }
     }
 }
 
@@ -130,12 +130,12 @@ value class Day(val value: Int) {
 }
 
 @JvmInline
-value class Set(val value: Int) {
+value class HintIndex(val value: Int) {
     init {
-        require(value in 1..5) { "A Set should be between 1 and 5." }
+        require(value in 1..5) { "A HintIndex should be between 1 and 5." }
     }
 
     companion object {
-        operator fun invoke(value: String?) = value?.let { Set(it.toInt()) }
+        operator fun invoke(value: String?) = value?.let { HintIndex(it.toInt()) }
     }
 }

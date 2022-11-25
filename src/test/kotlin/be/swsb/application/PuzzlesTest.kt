@@ -13,7 +13,7 @@ class PuzzlesTest {
     @Nested
     inner class Creating {
         @Test
-        internal fun `When attempting to create a Puzzle containing a single non-emoji in a Set, it fails`() {
+         fun `When attempting to create a Puzzle containing a single non-emoji in a Hint, it fails`() {
             val exception = assertThrows<IllegalArgumentException> {
                 aPuzzle("Snarf") {
                     +"""⚡️ 🐱 🐱 🐱 🐱"""
@@ -23,11 +23,11 @@ class PuzzlesTest {
                     +"""⚡️ 🐱 🐱 S 🐱"""
                 }
             }
-            assertEquals("An EmojiSet should only contain emoji's.", exception.message)
+            assertEquals("Hints should only contain emoji's.", exception.message)
         }
 
         @Test
-        internal fun `When attempting to create a Puzzle containing a blank Set, it fails`() {
+         fun `When attempting to create a Puzzle containing a blank Hint, it fails`() {
             val exception = assertThrows<IllegalArgumentException> {
                 aPuzzle("Snarf") {
                     +"""⚡️ 🐱 🐱 🐱 🐱"""
@@ -37,11 +37,11 @@ class PuzzlesTest {
                     +""" """
                 }
             }
-            assertEquals("An EmojiSet should not be empty.", exception.message)
+            assertEquals("Hints should not be empty.", exception.message)
         }
 
         @Test
-        internal fun `When attempting to create a Puzzle containing more than 5 emoji's in a Set, it fails`() {
+         fun `When attempting to create a Puzzle containing more than 5 emoji's in a Hint, it fails`() {
             val exception = assertThrows<IllegalArgumentException> {
                 aPuzzle("Snarf") {
                     +"""⚡️ 🐱 🐱 🐱 🐱"""
@@ -51,11 +51,11 @@ class PuzzlesTest {
                     +"""⚡️ 🐱 🐱 🐱 🐱 🐱"""
                 }
             }
-            assertEquals("An EmojiSet should exactly 5 emoji's.", exception.message)
+            assertEquals("Hints should exactly 5 emoji's.", exception.message)
         }
 
         @Test
-        internal fun `When attempting to create a Puzzle containing less than 5 emoji's in a Set, it fails`() {
+         fun `When attempting to create a Puzzle containing less than 5 emoji's in a Hint, it fails`() {
             val exception = assertThrows<IllegalArgumentException> {
                 aPuzzle("Snarf") {
                     +"""⚡️ 🐱 🐱 🐱 🐱"""
@@ -65,11 +65,11 @@ class PuzzlesTest {
                     +"""⚡️ 🐱 🐱 🐱 """
                 }
             }
-            assertEquals("An EmojiSet should exactly 5 emoji's.", exception.message)
+            assertEquals("Hints should exactly 5 emoji's.", exception.message)
         }
 
         @Test
-        internal fun `When attempting to create a Puzzle with less than 5 Sets, it fails`() {
+         fun `When attempting to create a Puzzle with less than 5 Hints, it fails`() {
             val exception = assertThrows<IllegalArgumentException> {
                 aPuzzle("Snarf") {
                     +"""⚡️ 🐱 🐱 🐱 🐱"""
@@ -78,28 +78,28 @@ class PuzzlesTest {
                     +"""⚡️ 🐱 🐱 🐱 🐱"""
                 }
             }
-            assertEquals("A Puzzle needs exactly 5 sets of emoji's.", exception.message)
+            assertEquals("A Puzzle needs exactly 5 hints of emoji's.", exception.message)
         }
     }
 
     @Nested
     inner class Guessing {
         @Test
-        internal fun `A correct guess returns true`() {
+         fun `A correct guess returns true`() {
             assertTrue {
                 aDefaultPuzzle("Snarf").check(Guess("Snarf"))
             }
         }
 
         @Test
-        internal fun `An incorrect guess returns false`() {
+         fun `An incorrect guess returns false`() {
             assertFalse {
                 aDefaultPuzzle("Snarf").check(Guess("snorf"))
             }
         }
 
         @Test
-        internal fun `An guesses are evaluated ignoring case`() {
+         fun `An guesses are evaluated ignoring case`() {
             assertTrue {
                 aDefaultPuzzle("Snarf").check(Guess("snarf"))
             }
@@ -109,7 +109,7 @@ class PuzzlesTest {
     @Nested
     inner class PuzzleQuerying {
         @Test
-        internal fun `When no Puzzle found for given date, returns null`() {
+         fun `When no Puzzle found for given date, returns null`() {
             val puzzles = assemble {
                 on(1981, 6, 18) thereIs aPuzzle("Birthday") {
                     +"""🎂 🎂 🎂 🎂 🎂"""
@@ -128,7 +128,7 @@ class PuzzlesTest {
     @Nested
     inner class PuzzleAppending {
         @Test
-        internal fun `When appending a Puzzle to an unpopular puzzles and the last puzzle's day has passed, new puzzle's date will be tomorrow`() {
+         fun `When appending a Puzzle to an unpopular puzzles and the last puzzle's day has passed, new puzzle's date will be tomorrow`() {
             val puzzles = assemble {
                 on(1981, 6, 18) thereIs aPuzzle("Birthday") {
                     +"""🎂 🎂 🎂 🎂 🎂"""
@@ -152,7 +152,7 @@ class PuzzlesTest {
         }
 
         @Test
-        internal fun `When appending a Puzzle to a puzzles and the last puzzle's day is exactly today, new puzzle's date will be tomorrow`() {
+         fun `When appending a Puzzle to a puzzles and the last puzzle's day is exactly today, new puzzle's date will be tomorrow`() {
             val today = LocalDate.now()
             val puzzles = assemble {
                 on(today.year, today.monthValue, today.dayOfMonth) thereIs aPuzzle("Birthday") {
@@ -175,7 +175,7 @@ class PuzzlesTest {
         }
 
         @Test
-        internal fun `When appending a Puzzle to a popular puzzles, new puzzle's date will be the day after the last puzzle`() {
+         fun `When appending a Puzzle to a popular puzzles, new puzzle's date will be the day after the last puzzle`() {
             val today = LocalDate.now()
             val tomorrow = today.plusDays(1)
             val puzzles = assemble {

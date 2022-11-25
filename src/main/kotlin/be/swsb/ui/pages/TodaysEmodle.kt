@@ -1,7 +1,7 @@
 package be.swsb.ui.pages
 
 import be.swsb.application.*
-import be.swsb.application.Set
+import be.swsb.application.HintIndex
 import be.swsb.ui.htmx.*
 import be.swsb.ui.htmx.HxSwap.OuterHTML
 import be.swsb.ui.htmx.HxTarget.*
@@ -18,17 +18,17 @@ fun HTML.TodaysEmodle(id: String = "TodaysEmodle") = page {
         }
         div {
             hxTarget(`this`)
-            val set = Set(1)
-            EmodleOfTheDay(set = set)
-            Guess(set = set)
+            val hintIndex = HintIndex(1)
+            EmodleOfTheDay(hintIndex = hintIndex)
+            Guess(hintIndex = hintIndex)
         }
     }
 }
 
-fun DIV.Guess(set: Set) {
+fun DIV.Guess(hintIndex: HintIndex) {
     p { +"Your guess:" }
     form {
-        hxPost("/puzzle/2022/8/10/${set.value}")
+        hxPost("/puzzle/2022/8/10/${hintIndex.value}")
         hxTarget(`this`)
         hxSwap(OuterHTML)
         input {
@@ -38,13 +38,13 @@ fun DIV.Guess(set: Set) {
     }
 }
 
-fun DIV.EmodleOfTheDay(id: String = "EmodleOfTheDay", set: Set) {
-    val sets = puzzles.find(Year(2022), Month(8), Day(10))?.take(set)
+fun DIV.EmodleOfTheDay(id: String = "EmodleOfTheDay", hintIndex: HintIndex) {
+    val usedHints = puzzles.find(Year(2022), Month(8), Day(10))?.take(hintIndex)
     div {
         this.id = id
-        sets?.forEachIndexed { idx, set ->
-            p { +"${idx + 1}. ${set.value}" }
-        } ?: p { +"No sets found." }
+        usedHints?.forEachIndexed { idx, hint ->
+            p { +"${idx + 1}. ${hint.value}" }
+        } ?: p { +"No hints found." }
     }
 }
 

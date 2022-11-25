@@ -81,11 +81,24 @@ private fun Routing.uiRoutes() {
         post {
             withValidatedParams { year, month, day, hintindex ->
                 val guess = call.receiveParameters()["guess"].toString().also { println("guessed: $it") }
-                val result: Boolean? = puzzles.find(year, month, day)?.check(Guess(guess))
-                result?.let { guessResult -> respondGuess(guessResult, hintindex) } ?: call.respond(
-                    HttpStatusCode.NotFound,
-                    "Can't find puzzle for $year/$month/$day."
-                )
+                val foundPuzzle = puzzles.find(year, month, day)
+                if (foundPuzzle == null) {
+                    call.respond(
+                        HttpStatusCode.NotFound,
+                        "Can't find puzzle for $year/$month/$day."
+                    )
+                } else {
+                    val guessResult: Boolean = foundPuzzle.check(Guess(guess))
+                    call.respondHtml {
+                        body {
+                            div {
+                                val newHintIndex = if (!guessResult) hintindex + 1 else hintindex
+                                EmodleOfTheDay(hintIndex = newHintIndex)
+                                GuessInput(newHintIndex, guessResult)
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -112,21 +125,6 @@ private fun Routing.uiRoutes() {
     get("/styles.css") {
         call.respondCss {
             TodaysEmodle()
-        }
-    }
-}
-
-private suspend fun PipelineContext<Unit, ApplicationCall>.respondGuess(
-    guessResult: Boolean,
-    currentHintIndex: HintIndex
-) {
-    call.respondHtml {
-        body {
-            div {
-                val newHintIndex = if (!guessResult) currentHintIndex + 1 else currentHintIndex
-                EmodleOfTheDay(hintIndex = newHintIndex)
-                GuessInput(newHintIndex, guessResult)
-            }
         }
     }
 }

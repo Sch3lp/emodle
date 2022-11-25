@@ -20,22 +20,30 @@ fun HTML.TodaysEmodle(id: String = "TodaysEmodle") = page {
             hxTarget(`this`)
             val hintIndex = HintIndex(1)
             EmodleOfTheDay(hintIndex = hintIndex)
-            GuessInput(hintIndex = hintIndex)
+            GuessInput(hintIndex = hintIndex, guessResult = false)
         }
     }
 }
 
 const val GuessInputFormId = "guessFormId"
-fun DIV.GuessInput(hintIndex: HintIndex) {
-    form {
-        id = GuessInputFormId
-        hxPost("/puzzle/2022/8/10/${hintIndex.value}")
-        hxTarget(`this`)
-        hxSwap(HxSwap.Multi(id, EmodleOfTheDayId))
-        p { +"Your guess:" }
-        input {
-            type = InputType.text
-            name = "guess"
+fun DIV.GuessInput(hintIndex: HintIndex, guessResult: Boolean) {
+    if (hintIndex.isMax()) {
+        p {
+            id = GuessInputFormId
+            +"😭😭😭 Jozef... Ik ben teleurgesteld in jou. 😭😭😭"
+        }
+    } else {
+        form {
+            id = GuessInputFormId
+            hxPost("/puzzle/2022/8/10/${hintIndex.value}")
+            hxTarget(`this`)
+            hxSwap(HxSwap.Multi(id, EmodleOfTheDayId))
+            p { +"Your guess:" }
+            input {
+                type = InputType.text
+                name = "guess"
+                autoFocus = true
+            }
         }
     }
 }

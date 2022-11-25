@@ -101,16 +101,13 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.respondGuess(
                 if (currentHintIndex == HintIndex(5)) {
                     div {
                         EmodleOfTheDay(hintIndex = currentHintIndex)
-                        p {
-                            id = GuessInputFormId
-                            +"😭😭😭 Jozef... Ik ben teleurgesteld in jou. 😭😭😭"
-                        }
+                        GuessInput(currentHintIndex, guessResult)
                     }
                 } else {
                     div {
                         val newHintIndex = currentHintIndex + 1
                         EmodleOfTheDay(hintIndex = newHintIndex)
-                        GuessInput(newHintIndex)
+                        GuessInput(newHintIndex, guessResult)
                     }
                 }
             } else {

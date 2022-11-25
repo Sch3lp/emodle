@@ -97,37 +97,25 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.respondGuess(
 ) {
     call.respondHtml {
         body {
-            div {
-                val newHintIndex = currentHintIndex + 1
-                EmodleOfTheDay(hintIndex = newHintIndex)
-                GuessInput(newHintIndex)
+            if (!guessResult) {
+                div {
+                    val newHintIndex = currentHintIndex + 1
+                    EmodleOfTheDay(hintIndex = newHintIndex)
+                    GuessInput(newHintIndex)
+                }
+            } else {
+                div {
+                    EmodleOfTheDay(hintIndex = currentHintIndex)
+                    p {
+                        id = GuessInputFormId
+                        +"🎉🎊🥳 You guessed correctly! 🎉🎊🥳"
+                    }
+                }
             }
         }
     }
 }
 
-
-//private fun Routing.apiRoutes() {
-//    ///api/puzzle/2022/08/10?set=1
-//    route("/api/puzzle/{year}/{month}/{day}/{set}") {
-//        get {
-//            withValidatedParams { year, month, day, set ->
-//                val requestedEmojiSet = puzzles.find(year, month, day)?.take(set)
-//                requestedEmojiSet?.let { emojiSets -> call.respond(emojiSets.asJson()) }
-//                    ?: call.respond(HttpStatusCode.NotFound, "Can't find puzzle for $year/$month/$day for set $set.")
-//            }
-//        }
-//        post {
-//            withValidatedParams { year, month, day, set ->
-//                val guess = call.receive<GuessJson>().asGuess()
-//                val result = puzzles.find(year, month, day)?.check(guess)
-//                result?.let { call.respond(it) } ?: call.respond(
-//                    HttpStatusCode.NotFound,
-//                    "Can't find puzzle for $year/$month/$day."
-//                )
-//            }
-//        }
-//    }
 //    route("/api/puzzle") {
 //        post {
 //            val createPuzzleJson = call.receive<CreatePuzzleJson>()
@@ -140,7 +128,6 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.respondGuess(
 //            )
 //        }
 //    }
-//}
 
 val puzzles: Puzzles =
     assemble {

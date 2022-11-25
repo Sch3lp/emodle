@@ -27,7 +27,6 @@ fun HTML.TodaysEmodle(id: String = "TodaysEmodle") = page {
 
 const val GuessInputFormId = "guessFormId"
 fun DIV.GuessInput(hintIndex: HintIndex) {
-    println("hintIndex: $hintIndex")
     form {
         id = GuessInputFormId
         hxPost("/puzzle/2022/8/10/${hintIndex.value}")

@@ -1,10 +1,7 @@
 package be.swsb.application
 
 import be.swsb.application.Puzzle.Companion.aPuzzle
-import be.swsb.ui.pages.EmodleOfTheDay
-import be.swsb.ui.pages.GuessInput
-import be.swsb.ui.pages.GuessInputFormId
-import be.swsb.ui.pages.TodaysEmodle
+import be.swsb.ui.pages.*
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.serialization.kotlinx.json.*
@@ -69,6 +66,13 @@ private fun Routing.uiRoutes() {
         get {
             call.respondHtml(HttpStatusCode.OK) {
                 TodaysEmodle()
+            }
+        }
+    }
+    route("/create") {
+        get {
+            call.respondHtml(HttpStatusCode.OK) {
+                CreateEmodle()
             }
         }
     }

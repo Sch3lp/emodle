@@ -52,7 +52,8 @@ fun DIV.GuessInput(hintIndex: HintIndex, guessResult: Boolean) {
                 }
             }
         }
-    }}
+    }
+}
 
 const val EmodleOfTheDayId = "emodleOfTheDayId"
 fun DIV.EmodleOfTheDay(id: String = EmodleOfTheDayId, hintIndex: HintIndex) {

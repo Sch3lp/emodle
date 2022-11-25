@@ -71,7 +71,7 @@ class Puzzles(private val puzzleMap: MutableMap<LocalDate, Puzzle>) {
     }
 }
 
-private fun LocalDate.isBeforeOrEqual(other: LocalDate) = this.isBefore(LocalDate.now()) || this.isEqual(LocalDate.now())
+private fun LocalDate.isBeforeOrEqual(other: LocalDate) = this.isBefore(other) || this.isEqual(other)
 
 fun assemble(scaffold: PuzzlesBuilder.() -> Unit): Puzzles {
     val builder = PuzzlesBuilder()

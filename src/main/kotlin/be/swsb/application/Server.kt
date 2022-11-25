@@ -8,6 +8,7 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.html.*
+import io.ktor.server.http.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.compression.*
@@ -21,6 +22,7 @@ import io.ktor.util.pipeline.*
 import kotlinx.css.*
 import kotlinx.html.*
 import kotlinx.serialization.json.Json
+import java.time.LocalDate
 
 data class EmodleCookie(val guesses: Int = 0)
 
@@ -88,6 +90,35 @@ private fun Routing.uiRoutes() {
             }
         }
     }
+    route("/puzzles") {
+        post {
+            val form = call.receiveParameters()
+            val enteredSolution = form["enteredSolution"]!!
+            val hint1 = form["hint1"]!!
+            val hint2 = form["hint2"]!!
+            val hint3 = form["hint3"]!!
+            val hint4 = form["hint4"]!!
+            val hint5 = form["hint5"]!!
+
+            val date = puzzles.append(aPuzzle(enteredSolution) {
+                +hint1
+                +hint2
+                +hint3
+                +hint4
+                +hint5
+            }).atStartOfDay()
+
+            call.respondHtml {
+                body {
+                    div {
+                        id = CreateEmodleId
+                        p { +"Well done!" }
+                        p { +"Your Puzzle will be provided on ${httpDateFormat.format(date)}." }
+                    }
+                }
+            }
+        }
+    }
     get("/styles.css") {
         call.respondCss {
             TodaysEmodle()
@@ -109,19 +140,6 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.respondGuess(
         }
     }
 }
-
-//    route("/api/puzzle") {
-//        post {
-//            val createPuzzleJson = call.receive<CreatePuzzleJson>()
-//            val date: LocalDateTime = puzzles.append(aPuzzle(createPuzzleJson.solution) {
-//                createPuzzleJson.emojiSets.forEach { +it }
-//            }).atStartOfDay()
-//            call.respond(
-//                HttpStatusCode.Created,
-//                "Your Puzzle will be provided on ${httpDateFormat.format(date)}."
-//            )
-//        }
-//    }
 
 val puzzles: Puzzles =
     assemble {

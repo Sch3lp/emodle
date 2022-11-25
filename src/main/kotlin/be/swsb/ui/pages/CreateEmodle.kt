@@ -1,15 +1,23 @@
 package be.swsb.ui.pages
 
+import be.swsb.ui.htmx.HxTarget
+import be.swsb.ui.htmx.hxPost
+import be.swsb.ui.htmx.hxTarget
 import kotlinx.html.*
 
-fun HTML.CreateEmodle(id: String = "CreateEmodle") = page {
+const val CreateEmodleId = "CreateEmodle"
+fun HTML.CreateEmodle(id: String = CreateEmodleId) = page {
     div {
-        h2 { +"Your puzzle" }
+        this.id = id
+        h2 { +"Create your puzzle!" }
         form {
+            hxPost("/puzzles")
+            hxTarget(HxTarget.`this`)
             p {
                 +"Movie "
                 input {
                     type = InputType.text
+                    required = true
                     name = "enteredSolution"
                 }
             }
@@ -18,13 +26,14 @@ fun HTML.CreateEmodle(id: String = "CreateEmodle") = page {
                     +"Hint $idx "
                     input {
                         type = InputType.text
+                        required = true
                         name = "hint$idx"
                     }
                 }
             }
             input {
                 type = InputType.submit
-                value = "Create"
+                value = "Submit"
             }
             a {
                 href = "/"

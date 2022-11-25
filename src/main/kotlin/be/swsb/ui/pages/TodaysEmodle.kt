@@ -36,7 +36,7 @@ fun DIV.GuessInput(hintIndex: HintIndex, guessResult: Boolean) {
         if (hintIndex.isMax()) {
             p {
                 id = GuessInputFormId
-                +"😭😭😭 Jozef... Ik ben teleurgesteld in jou. 😭😭😭"
+                +"😭😭😭 Better luck next time! 😭😭😭"
             }
         } else {
             form {

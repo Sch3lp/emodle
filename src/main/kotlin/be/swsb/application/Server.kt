@@ -123,7 +123,7 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.respondGuess(
     call.respondHtml {
         body {
             div {
-                val newHintIndex = currentHintIndex + 1
+                val newHintIndex = if (!guessResult) currentHintIndex + 1 else currentHintIndex
                 EmodleOfTheDay(hintIndex = newHintIndex)
                 GuessInput(newHintIndex, guessResult)
             }
